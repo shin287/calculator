@@ -1,53 +1,67 @@
 $(function(){
     let number;
     let op;
+    let formula="";
     $(".num").on("click",function(){
         const pushed=$(this).text();
         const now=$("#cal").val();
-        if(pushed==="."&&now.includes(".")){
-            return;
-        }
 
-        if(now==="0" && pushed!=="."){
-            $("#cal").val(pushed);
-        }else if(now==="00"&&pushed!=="."){
-            $("#cal").val(pushed);
-        }else if(now==="00"&&pushed==="."){
-            $("#cal").val("0.");
+        if(formula==="" && pushed==="."){
+            formula="0.";
+        }else if(formula==="0"&&pushed!=="."){
+            formula=pushed;
+        }else if(formula==="00"&&pushed!=="."){
+            formula=pushed;
+        }else if(formula==="00"&&pushed==="."){
+            formula="0.";
         }else{
-            $("#cal").val(now+pushed);
+            formula=formula+pushed;
         }
+        $("#cal").val(formula);
     });
 
     $(".sign").on("click",function(){
-        number=$("#cal").val();
-        op=$(this).text();
-        $("#cal").val("0");
+        const four=$(this).text();
+        const last=formula.slice(-1);
+
+        if(formula===""){
+            return;
+        }
+        if(four==="."){
+            const parts=formula.split(/[\+\-\*\/]/);
+            const lastnumber=parts[parts.length-1];
+            if(lastnumber.includes(".")){
+                return;
+            }
+            formula=formula+four;
+            $("#cal").val(formula);
+            return;
+        }
+        if(last==="+"||last==="-"||last==="*"||last==="/"||last==="."){
+            return;
+        }
+        formula=formula+four;
+        $("#cal").val(formula);
     });
 
     $(".eq").on("click",function(){
-        if(number==null||op==null){
+        if(formula===""){
             return;
         }
-        const second=$("#cal").val();
-        let result;
-        if(op==="+"){
-            result=Number(number)+Number(second);
+        const last=formula.slice(-1);
+        if(last==="+"||last==="-"||last==="*"||last==="/"||last==="."){
+            return;
         }
-        if(op==="-"){
-            result=Number(number)-Number(second);
-        }
-        if(op==="*"){
-            result=Number(number)*Number(second);
-        }
-        if(op==="/"){
-            result=Number(number)/Number(second);
-        }
-        $("#cal").val(result);
+        let result=eval(formula);
+        result=Math.round(result*1000000000)/1000000000;
+
+        formula=String(result);
+        $("#cal").val(formula);
     });
     $(".ac").on("click",function(){
         $("#cal").val("0");
         number=null;
         op=null;
+        formula="";
     });
 });
